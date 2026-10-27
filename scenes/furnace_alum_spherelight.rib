@@ -1,0 +1,98 @@
+##RenderMan RIB
+version 3.03
+
+# -----------------------------------------------------------------
+# Track A1 diagnostic, LIGHT-SIDE fork: identical to furnace_alum.rib
+# except PxrDomeLight -> PxrSphereLight, per the fallback note at the
+# bottom of furnace_alum.rib and the open question in
+# results-section-draft.md Sec 5.x.3.
+#
+# PURPOSE: furnace_alum.rib (dome light) showed a mismatch between the
+# rendered sphere and the un-rendered rho(theta_o) reference, while its
+# OWN background read ~1.0 (dome correctly reaching the camera). That
+# does not yet tell you whether the dome's intensity is *also* failing
+# to propagate to BSDF-sampled (indirect) rays specifically -- the
+# known risk from methodology-and-contributions.md Sec 3.4 -- or
+# whether the plugin's own sampler/PDF code (NBrdf.cpp's
+# GenerateSample/EvaluateSample) has a bug independent of light type.
+#
+# PxrSphereLight was NOT observed to have the Sec 3.4 propagation
+# problem in prior tests on this project. So:
+#   - If THIS render's sphere now matches the compute_albedo.py curve
+#     (within noise) -> the furnace_alum.rib mismatch was the dome
+#     recurring, i.e. a RenderMan light-propagation issue, NOT a bug
+#     in NBrdf.cpp's sampling code. Fix = work around/avoid
+#     PxrDomeLight for indirect-light-dependent tests, or escalate to
+#     Pixar; the plugin's GenerateSample/EvaluateSample pdf code does
+#     not need auditing on this evidence.
+#   - If the SAME mismatch persists here -> the dome is cleared as a
+#     suspect (two different light types, same symptom), and the
+#     defect is in the plugin's own mixture-PDF code. Next step:
+#     furnace_alum_cosine.rib / furnace_alum_ggx.rib (samplingMode
+#     ablation) to localize it to one specific pdf formula or to the
+#     0.5/0.5 combination itself.
+#
+# Run exactly like furnace_alum.rib's furnace_check.py command -- same
+# --screen-half/--res/--sphere-radius, same albedo_alum.csv reference,
+# since the camera/sphere geometry is unchanged, only the light block
+# differs.
+#
+# CALIBRATION CAVEAT (carried over from furnace_alum.rib's own fallback
+# note): "int areaNormalize" behavior varies by RenderMan version --
+# confirm the background still reads ~1.0 below before trusting the
+# sphere comparison. If it doesn't, adjust "float intensity" until it
+# does, then re-derive what un-rendered rho curve it should be compared
+# against (compute_albedo.py's curve assumes unit incoming radiance).
+#
+# v2 fix (2026-10-14): first run came back with background=0.0, not
+# ~1.0 -- the light wasn't illuminating anything. Cause: a sphere light
+# emits from its OUTWARD-facing normal by default (like a bulb glowing
+# away from its own surface). The camera and test sphere both sit
+# INSIDE this radius-50 enclosing sphere, so they were looking at the
+# back of the emitting surface, which emits nothing inward. Fixed below
+# with `ReverseOrientation` before the Light call, RenderMan's standard
+# RIB directive for flipping which side of a surface's normal faces
+# "out" -- this flips the sphere's emission to face inward, toward the
+# test geometry, without needing a light-specific "sides" parameter
+# (and it stays scoped to this AttributeBegin/End block only).
+# -----------------------------------------------------------------
+
+Display "furnace_alum_spherelight.exr" "file" "rgba"
+Format 512 512 1
+PixelFilter "box" 1 1
+
+Projection "orthographic"
+ScreenWindow -1.2 1.2 -1.2 1.2
+Clipping 0.1 1000
+Translate 0 0 5
+
+Hider "raytrace" "int minsamples" [512] "int maxsamples" [512]
+
+WorldBegin
+
+    # Large enclosing sphere light, radius 50, centered at the origin --
+    # subtends (nearly) the full hemisphere from every point on the unit
+    # test sphere, i.e. the same "uniform white dome" condition as
+    # PxrDomeLight, but via a light type not observed to have the Sec 3.4
+    # propagation bug. areaNormalize=0 so "intensity" is the quantity to
+    # calibrate directly against the background check below, matching
+    # the convention furnace_check.py's background check assumes.
+    AttributeBegin
+        Translate 0 0 0
+        ReverseOrientation
+        Light "PxrSphereLight" "furnace"
+            "float intensity" [1.0]
+            "float exposure" [0]
+            "color lightColor" [1.0 1.0 1.0]
+            "int areaNormalize" [0]
+        Scale 50 50 50
+    AttributeEnd
+
+    # Same material, same geometry as furnace_alum.rib -- only the light
+    # changed, so any change in the sphere's radial profile isolates to
+    # the light type.
+    Bxdf "NBrdf" "furnace_material"
+        "string weightsPath" ["C:/NBrdfBuild/nbrdf_weights.bin"]
+    Sphere 1 -1 1 360
+
+WorldEnd

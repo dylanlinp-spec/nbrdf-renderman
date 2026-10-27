@@ -1,0 +1,36 @@
+##RenderMan RIB
+version 3.03
+
+# Track C2: whole-render time, PxrSurface tuned to look roughly similar to
+# alum-bronze (metallic, fairly tight specular). NOT a quality match --
+# per the protocol, this bounds cost, it isn't apples-to-apples with NBRDF's
+# actual appearance. Identical camera/resolution/light/geometry to
+# c2_nbrdf.rib and c2_pxrdiffuse.rib.
+
+Display "c2_pxrsurface.exr" "file" "rgba"
+Format 768 512 1
+PixelFilter "box" 1 1
+
+Projection "perspective" "fov" [40]
+Clipping 0.1 1000
+Translate 0 0 5
+
+Hider "raytrace" "int minsamples" [64] "int maxsamples" [64]
+
+WorldBegin
+
+    Light "PxrDomeLight" "c2light"
+        "float intensity" [1.0]
+        "float exposure" [0]
+        "color lightColor" [1.0 1.0 1.0]
+
+    Bxdf "PxrSurface" "c2_material"
+        "float diffuseGain" [0.0]
+        "int specularFresnelMode" [1]
+        "color specularFaceColor" [0.4 0.3 0.2]
+        "color specularEdgeColor" [0.8 0.7 0.6]
+        "float specularRoughness" [0.1]
+        "int specularModelType" [1]
+    Sphere 1 -1 1 360
+
+WorldEnd

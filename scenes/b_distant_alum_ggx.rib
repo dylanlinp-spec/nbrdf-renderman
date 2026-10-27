@@ -1,0 +1,39 @@
+##RenderMan RIB
+version 3.03
+
+# Track B (performance-evaluation-protocol.md): sampler-efficiency
+# ablation, GGX-only technique. Identical to a2_distant_alum.rib
+# except "int samplingMode" [2] -- requires the plugin built from
+# NBrdf_v3_diag.cpp. Expect this one to be noisier/worse per Sec 3.2
+# (alum-bronze is darkest near the mirror direction, which is exactly
+# where a narrow GGX-only lobe concentrates its samples). Diff with:
+#   python a2_check.py --exr b_distant_alum_ggx.exr --label alum-bronze
+
+Display "b_distant_alum_ggx.exr" "file" "rgba"
+Format 384 384 1
+PixelFilter "box" 1 1
+
+Projection "orthographic"
+ScreenWindow -1 1 -1 1
+Clipping 0.1 1000
+Translate 0 0 5
+
+Hider "raytrace" "int minsamples" [512] "int maxsamples" [512]
+
+WorldBegin
+
+    AttributeBegin
+        Rotate 57.49 0 0 1
+        Rotate 41.00 0 1 0
+        Light "PxrDistantLight" "a2light"
+            "float intensity" [1.0]
+            "float exposure" [0]
+            "color lightColor" [1.0 1.0 1.0]
+    AttributeEnd
+
+    Bxdf "NBrdf" "a2_material"
+        "string weightsPath" ["C:/NBrdfBuild/nbrdf_weights.bin"]
+        "int samplingMode" [2]
+    Sphere 1 -1 1 360
+
+WorldEnd

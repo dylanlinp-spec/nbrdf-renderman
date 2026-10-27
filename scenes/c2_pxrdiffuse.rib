@@ -1,0 +1,30 @@
+##RenderMan RIB
+version 3.03
+
+# Track C2: whole-render time, PxrDiffuse as the cheap floor (simplest
+# possible Bxdf -- this is the baseline the NBRDF/PxrSurface ratios get
+# reported against). Identical camera/resolution/light/geometry to
+# c2_nbrdf.rib and c2_pxrsurface.rib.
+
+Display "c2_pxrdiffuse.exr" "file" "rgba"
+Format 768 512 1
+PixelFilter "box" 1 1
+
+Projection "perspective" "fov" [40]
+Clipping 0.1 1000
+Translate 0 0 5
+
+Hider "raytrace" "int minsamples" [64] "int maxsamples" [64]
+
+WorldBegin
+
+    Light "PxrDomeLight" "c2light"
+        "float intensity" [1.0]
+        "float exposure" [0]
+        "color lightColor" [1.0 1.0 1.0]
+
+    Bxdf "PxrDiffuse" "c2_material"
+        "color diffuseColor" [0.4 0.3 0.2]
+    Sphere 1 -1 1 360
+
+WorldEnd

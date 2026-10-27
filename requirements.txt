@@ -1,0 +1,14 @@
+# Python packages for training and evaluation.
+# Install with:  bash scripts/02_setup_python.sh
+# (or by hand:   python -m pip install -r requirements.txt)
+#
+# The exact versions used for the published results were not recorded.
+# The lower bounds below are versions known to run this code; the setup
+# script saves the versions YOU end up with to
+# results/reproduced/logs/pip_freeze.txt so your run is documented.
+numpy>=1.24
+torch>=2.0
+matplotlib>=3.7
+opencv-python>=4.8
+tifffile>=2023.7.10
+imagecodecs>=2023.7.10

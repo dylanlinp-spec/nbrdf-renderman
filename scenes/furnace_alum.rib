@@ -1,0 +1,83 @@
+##RenderMan RIB
+version 3.03
+
+# -----------------------------------------------------------------
+# White-furnace scene for alum-bronze (Track A1, performance-evaluation-protocol.md).
+#
+# A single NBRDF sphere under a uniform-radiance (intensity 1.0) white dome,
+# shot with an ORTHOGRAPHIC camera. Under unit incoming radiance, the outgoing
+# radiance the camera sees at a point whose view angle is theta_o is exactly
+# the directional albedo rho(theta_o) -- the same quantity compute_albedo.py
+# already computed from the raw weights with no renderer involved. Matching
+# the two confirms the actual sampler + MIS path (GenerateSample/EvaluateSample)
+# agrees with the un-rendered reference, not just the raw network weights.
+#
+# IMPORTANT geometry note for furnace_check.py: orthographic camera, sphere
+# radius 1 at the origin, screen window [-1.2, 1.2] on both axes, square
+# image. furnace_check.py's defaults assume exactly this framing -- if you
+# change SCREEN_HALF, RES, or the sphere radius below, pass the matching
+# --screen-half / --sphere-radius / --res flags to that script.
+#
+# KNOWN RISK (methodology-and-contributions.md Sec 3.4): PxrDomeLight
+# intensity did not propagate to BSDF-sampled (indirect) light in earlier
+# tests on this project -- only to directly camera-visible background. That
+# is exactly the light path this furnace test exercises (the sphere receives
+# light only via GenerateSample-driven rays, never direct camera visibility).
+# If the sphere renders near-black while the background reads ~1.0, that bug
+# is blocking this test -- see the fallback note at the bottom of this file.
+# -----------------------------------------------------------------
+
+Display "furnace_alum.exr" "file" "rgba"
+Format 512 512 1
+PixelFilter "box" 1 1
+
+Projection "orthographic"
+ScreenWindow -1.2 1.2 -1.2 1.2
+Clipping 0.1 1000
+Translate 0 0 5
+
+# Fixed, high, EQUAL min/max samples: this is a correctness check, not the
+# convergence test (that's Track A3 / convergence.py), so we want sampling
+# noise minimized rather than measured. Lower to 128 for a fast first look,
+# raise to 1024+ for the number that goes in the write-up.
+Hider "raytrace" "int minsamples" [512] "int maxsamples" [512]
+
+WorldBegin
+
+    # Uniform white environment, unit radiance. Deliberately NOT hidden from
+    # camera: the background will read ~1.0 and the sphere will read its much
+    # dimmer rho(theta_o) (<=0.25 per compute_albedo.py), so the two separate
+    # cleanly by brightness alone -- no silhouette/color-matching trick needed.
+    Light "PxrDomeLight" "furnace"
+        "float intensity" [1.0]
+        "float exposure" [0]
+        "color lightColor" [1.0 1.0 1.0]
+
+    # Sphere of radius 1 at the origin -- matches the orthographic framing
+    # assumed by furnace_check.py and by compute_albedo.py's own angle
+    # convention (view axis = +Z).
+    Bxdf "NBrdf" "furnace_material"
+        "string weightsPath" ["C:/NBrdfBuild/nbrdf_weights.bin"]
+    Sphere 1 -1 1 360
+
+WorldEnd
+
+# -----------------------------------------------------------------
+# FALLBACK if PxrDomeLight light fails to reach the sphere (see risk note
+# above): replace the Light block with a large enclosing PxrSphereLight
+# instead, e.g.:
+#
+#   Light "PxrSphereLight" "furnace"
+#       "float intensity" [1.0]
+#       "float exposure" [0]
+#       "color lightColor" [1.0 1.0 1.0]
+#       "int areaNormalize" [0]
+#   (placed via its own AttributeBegin/Translate/Scale block, radius ~50,
+#   centered at the origin so it encloses the test sphere from every side)
+#
+# This routes light through BSDF sampling the same way but via a light type
+# that (per Sec 3.4) was NOT observed to have the propagation problem. Verify
+# the "int areaNormalize" behavior for your RenderMan version before trusting
+# the absolute radiance value from this fallback -- it may need recalibrating
+# against a known-intensity reference before comparing to compute_albedo.py.
+# -----------------------------------------------------------------

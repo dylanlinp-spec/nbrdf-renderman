@@ -1,0 +1,62 @@
+##RenderMan RIB
+version 3.03
+
+# -----------------------------------------------------------------
+# Track A2 (performance-evaluation-protocol.md): analytic distant-light
+# match. Same geometry/light/material as render_gt_comparison.py's
+# analytic (zero-Monte-Carlo) reference, rendered for real through the
+# plugin's actual sampling path, so the two can be diffed pixel-for-pixel.
+#
+# GEOMETRY (must match render_gt_comparison.py exactly):
+#   - Orthographic camera, screen window [-1,1]x[-1,1], view = +Z.
+#   - Unit sphere at the origin.
+#   - RES below MUST equal render_gt_comparison.py's RES (384 by default).
+#
+# LIGHT: render_gt_comparison.py's LIGHT_DIR = [0.35, 0.55, 0.75]
+# (normalized) is wi -- the direction FROM the surface TOWARD the light.
+# PxrDistantLight illuminates along its local -Z by default (same
+# -Z-forward convention as RenderMan's camera and other Pxr lights), so
+# wi in world space = the light's local +Z axis after transform. The
+# Rotate pair below (the second Rotate, around the Y axis, is applied
+# FIRST since it's nearest the Light call; the first Rotate, around Z,
+# is applied second -- RIB's apply-nearest-to-geometry-first order)
+# sends local +Z to [0.3522, 0.5535, 0.7546] -- LIGHT_DIR normalized:
+#   theta = acos(Lz) = acos(0.7546) ~= 41.00 deg   (Rotate ... 0 1 0)
+#   phi   = atan2(Ly, Lx)           ~= 57.49 deg   (Rotate ... 0 0 1)
+#
+# CONVENTION CAVEAT: PxrDistantLight's default-axis convention was not
+# independently re-verified against this RenderMan version. SANITY
+# CHECK FIRST: if the render comes back with EVERY sphere pixel at 0
+# (fully unlit), the direction is backward -- fix by negating the
+# RotateY angle (use -41.00 instead of 41.00) rather than re-deriving
+# the trig. A partially-lit, non-degenerate sphere means the direction
+# is at least approximately right.
+# -----------------------------------------------------------------
+
+Display "a2_distant_alum.exr" "file" "rgba"
+Format 384 384 1
+PixelFilter "box" 1 1
+
+Projection "orthographic"
+ScreenWindow -1 1 -1 1
+Clipping 0.1 1000
+Translate 0 0 5
+
+Hider "raytrace" "int minsamples" [512] "int maxsamples" [512]
+
+WorldBegin
+
+    AttributeBegin
+        Rotate 57.49 0 0 1
+        Rotate 41.00 0 1 0
+        Light "PxrDistantLight" "a2light"
+            "float intensity" [1.0]
+            "float exposure" [0]
+            "color lightColor" [1.0 1.0 1.0]
+    AttributeEnd
+
+    Bxdf "NBrdf" "a2_material"
+        "string weightsPath" ["C:/NBrdfBuild/nbrdf_weights.bin"]
+    Sphere 1 -1 1 360
+
+WorldEnd

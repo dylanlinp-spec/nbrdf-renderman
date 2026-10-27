@@ -1,0 +1,56 @@
+##RenderMan RIB
+version 3.03
+
+Display "test_render.exr" "file" "rgba"
+Format 768 512 1
+Projection "perspective" "fov" 40
+Translate 0 0 7
+
+Hider "raytrace" "int minsamples" [32] "int maxsamples" [256]
+
+WorldBegin
+
+    # Small bright area light instead of a full HDRI dome. A compact light
+    # produces a recognizable highlight whose SIZE and SOFTNESS is a direct
+    # visible signature of the trained BRDF's specular lobe -- much easier
+    # to read by eye than trying to resolve fine environment reflections
+    # on a material whose lobe is too wide for that (confirmed via
+    # check_symmetry.py: strong coarse directional response, but no fine
+    # spatial detail resolves).
+    #
+    # Same light illuminates BOTH spheres below, so any difference in how
+    # they look is purely down to the two different trained BRDFs.
+    AttributeBegin
+        Attribute "visibility" "int camera" [0]
+        Translate 2.6 2.2 3.0
+        Scale 0.25 0.25 0.25
+        Light "PxrSphereLight" "keylight"
+            "float intensity" [2500]
+            "float exposure" [0]
+    AttributeEnd
+
+    # Faint fill so the unlit side of each sphere isn't pure black -- keeps
+    # the silhouette and grazing-angle sheen visible without adding
+    # directional detail of its own.
+    Light "PxrDomeLight" "filllight"
+        "float intensity" [0.015]
+
+    # Left sphere: alum-bronze -- broad, grazing-bright lobe (confirmed via
+    # check_symmetry.py and find_highlight.py: highlight stays centered
+    # under this light regardless of its position).
+    AttributeBegin
+        Translate -1.2 0 0
+        Bxdf "NBrdf" "material1" "string weightsPath" ["C:/NBrdfBuild/nbrdf_weights.bin"]
+        Sphere 0.9 -0.9 0.9 360
+    AttributeEnd
+
+    # Right sphere: chrome -- MERL's classic sharp/mirror-like sample.
+    # Expect a tight, bright highlight that visibly tracks the key light's
+    # off-center position, unlike the alum-bronze sphere.
+    AttributeBegin
+        Translate 1.2 0 0
+        Bxdf "NBrdf" "material2" "string weightsPath" ["C:/NBrdfBuild/nbrdf_weights_chrome.bin"]
+        Sphere 0.9 -0.9 0.9 360
+    AttributeEnd
+
+WorldEnd

@@ -1,0 +1,15 @@
+# Keep shell scripts with Unix line endings on every OS (Git Bash fails on CRLF).
+*.sh   text eol=lf
+*.py   text eol=lf
+*.rib  text eol=lf
+*.md   text
+*.csv  text
+*.cff  text
+# Windows-only files keep Windows line endings.
+*.bat  text eol=crlf
+# Binary files: never convert, never diff as text.
+*.bin  binary
+*.pt   binary
+*.png  binary
+*.exr  binary
+*.binary binary

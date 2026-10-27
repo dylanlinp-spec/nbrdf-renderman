@@ -1,0 +1,59 @@
+##RenderMan RIB
+version 3.03
+
+# -----------------------------------------------------------------
+# Track A1 diagnostic, SAMPLER-SIDE fork, technique 1 of 2: identical
+# to furnace_alum.rib except the Bxdf is pointed at cosine-hemisphere
+# sampling ONLY, via the "samplingMode" parameter added in
+# NBrdf_v3_diag.cpp (requires rebuilding the plugin from that file --
+# see its header comment). samplingMode=0 (omitted/default) reproduces
+# the original mixture exactly; this file sets it to 1.
+#
+# PURPOSE: run this AND furnace_alum_ggx.rib (samplingMode=2) through
+# furnace_check.py, same as furnace_alum.rib. Three possible outcomes:
+#   - BOTH match the compute_albedo.py reference (within noise) but the
+#     0.5/0.5 MIXTURE (furnace_alum.rib) does not -> the bug is in how
+#     MixturePDF combines the two, or in the technique<0.5f branch
+#     selection/RNG usage in GenerateSample -- not in either pdf formula
+#     alone.
+#   - ONE of the two mismatches (say cosine matches, GGX doesn't) ->
+#     the bug is in that technique's own pdf formula (GGX_PDF/GGX_D, or
+#     CosinePDF) or its corresponding sampling code (SampleGGX/
+#     SampleCosineHemisphere) -- audit that function specifically.
+#   - BOTH mismatch the same way the mixture did -> the bug is shared
+#     infrastructure common to all three (StandardToHalfDiff, the
+#     lobe-activation/weight plumbing, or -- per furnace_alum_spherelight.rib
+#     -- the dome light itself, not sampling at all). Run the
+#     spherelight fallback too before concluding this.
+#
+# Only run this on alum-bronze first; it's the material where Sec 3.2
+# already showed the two techniques behave very differently, so it's
+# the most diagnostic. Repeat for chrome once alum-bronze localizes the
+# cause.
+# -----------------------------------------------------------------
+
+Display "furnace_alum_cosine.exr" "file" "rgba"
+Format 512 512 1
+PixelFilter "box" 1 1
+
+Projection "orthographic"
+ScreenWindow -1.2 1.2 -1.2 1.2
+Clipping 0.1 1000
+Translate 0 0 5
+
+Hider "raytrace" "int minsamples" [512] "int maxsamples" [512]
+
+WorldBegin
+
+    Light "PxrDomeLight" "furnace"
+        "float intensity" [1.0]
+        "float exposure" [0]
+        "color lightColor" [1.0 1.0 1.0]
+
+    # samplingMode 1 = cosine-hemisphere ONLY (NBrdf_v3_diag.cpp).
+    Bxdf "NBrdf" "furnace_material"
+        "string weightsPath" ["C:/NBrdfBuild/nbrdf_weights.bin"]
+        "int samplingMode" [1]
+    Sphere 1 -1 1 360
+
+WorldEnd

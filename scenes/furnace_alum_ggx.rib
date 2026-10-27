@@ -1,0 +1,47 @@
+##RenderMan RIB
+version 3.03
+
+# -----------------------------------------------------------------
+# Track A1 diagnostic, SAMPLER-SIDE fork, technique 2 of 2: identical
+# to furnace_alum_cosine.rib except samplingMode=2 (GGX-around-mirror
+# ONLY). See furnace_alum_cosine.rib's header for the decision tree --
+# run both of these plus furnace_alum.rib (mixture) and compare all
+# three through furnace_check.py against the same albedo_alum.csv.
+#
+# NOTE: expect this one to be noisier/harder to converge than the
+# cosine-only or mixture renders even at 512 spp -- GGX_ALPHA=0.05 is a
+# narrow lobe, and per Sec 3.2 it's sampling into one of this
+# material's DARKEST regions (near the mirror direction) much of the
+# time, which is exactly why the mixture exists. A large mismatch here
+# alone, with the mixture and cosine-only both clean, would point at
+# this technique's own pdf/sampling code OR just be expected high
+# variance at this sample count -- rule out variance first by
+# re-running at a higher fixed spp (e.g. 2048) before concluding it's a
+# bug in GGX_PDF/SampleGGX specifically.
+# -----------------------------------------------------------------
+
+Display "furnace_alum_ggx.exr" "file" "rgba"
+Format 512 512 1
+PixelFilter "box" 1 1
+
+Projection "orthographic"
+ScreenWindow -1.2 1.2 -1.2 1.2
+Clipping 0.1 1000
+Translate 0 0 5
+
+Hider "raytrace" "int minsamples" [512] "int maxsamples" [512]
+
+WorldBegin
+
+    Light "PxrDomeLight" "furnace"
+        "float intensity" [1.0]
+        "float exposure" [0]
+        "color lightColor" [1.0 1.0 1.0]
+
+    # samplingMode 2 = GGX-around-mirror ONLY (NBrdf_v3_diag.cpp).
+    Bxdf "NBrdf" "furnace_material"
+        "string weightsPath" ["C:/NBrdfBuild/nbrdf_weights.bin"]
+        "int samplingMode" [2]
+    Sphere 1 -1 1 360
+
+WorldEnd

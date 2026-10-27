@@ -1,0 +1,43 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+title: "NBRDF for RenderMan: a neural BRDF as a native RixBxdf plugin"
+authors:
+  - family-names: "Li"
+    given-names: "Dylan"
+version: "1.0.0"
+date-released: "2026-10-26"
+license: MIT
+repository-code: "https://github.com/your_github_username/nbrdf-renderman"
+keywords:
+  - neural BRDF
+  - RenderMan
+  - RixBxdf
+  - MERL
+  - importance sampling
+references:
+  - type: article
+    authors:
+      - family-names: "Sztrajman"
+        given-names: "Alejandro"
+      - family-names: "Rainer"
+        given-names: "Gilles"
+      - family-names: "Ritschel"
+        given-names: "Tobias"
+      - family-names: "Weyrich"
+        given-names: "Tim"
+    title: "Neural BRDF Representation and Importance Sampling"
+    journal: "Computer Graphics Forum"
+    year: 2021
+  - type: article
+    authors:
+      - family-names: "Matusik"
+        given-names: "Wojciech"
+      - family-names: "Pfister"
+        given-names: "Hanspeter"
+      - family-names: "Brand"
+        given-names: "Matthew"
+      - family-names: "McMillan"
+        given-names: "Leonard"
+    title: "A Data-Driven Reflectance Model"
+    journal: "ACM Transactions on Graphics"
+    year: 2003

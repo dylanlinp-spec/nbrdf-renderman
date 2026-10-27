@@ -1,0 +1,4 @@
+label,median_s,mad_s,min_s,max_s,runs,threads_note
+NBRDF,8.287,0.015,8.264,8.325,6,t:8
+PxrSurface,2.129,0.009,2.117,2.158,6,t:8
+PxrDiffuse,1.594,0.011,1.562,1.608,6,t:8

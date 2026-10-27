@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  NBrdf.args
+
+  Exposes the one parameter our plugin's GetParamTable() declares
+  (see NBrdf.cpp) so RenderMan's UI / RIB parser knows this plugin
+  takes a "weightsPath" string.
+
+  CONFIDENCE NOTE: this follows the standard Pixar "Args" XML schema
+  used across their tools, but I haven't compared it against a real
+  shipped example. Before trusting this blindly, check
+  %RMANTREE%\lib\plugins (or wherever PxrSurface.args actually lives
+  in your install) for a real, working reference file, and adjust
+  attribute names here to match if they differ.
+-->
+<args format="1.0">
+    <shaderType>
+        <tag value="bxdf"/>
+    </shaderType>
+
+    <param name="weightsPath" label="Weights Path" type="string" default="">
+        <tags>
+            <tag value="string"/>
+        </tags>
+        <help>Path to the trained NBRDF weights binary file exported by train_nbrdf.ipynb (e.g. C:/NBrdfBuild/nbrdf_weights.bin).</help>
+    </param>
+
+    <!--
+      v3 diagnostic parameter (NBrdf_v3_diag.cpp only -- not present in
+      v2/NBrdf_v2.cpp). Added to localize the Track A1 furnace-test
+      energy-conservation mismatch to one specific sampling technique
+      vs. the 0.5/0.5 mixture combination, per
+      results-section-draft.md Sec 5.x.3 and furnace_alum_cosine.rib /
+      furnace_alum_ggx.rib. Omit this param (or leave at 0) for
+      ordinary production rendering -- it reproduces v2 exactly.
+    -->
+    <param name="samplingMode" label="Sampling Mode (diagnostic)" type="int" default="0">
+        <tags>
+            <tag value="int"/>
+        </tags>
+        <help>Diagnostic only. 0 = 50/50 mixture (default, matches v2). 1 = cosine-hemisphere sampling only. 2 = GGX-around-mirror sampling only. Used to isolate an energy-conservation mismatch (Track A1) to one technique's pdf formula vs. the mixture combination itself.</help>
+    </param>
+
+    <!--
+      NOTE: PxrSurface.args ends with rfmdata/rfhdata/rfcdata blocks
+      that register a Pixar-assigned nodeid for Maya/Houdini/Blender
+      integrations. We don't have one for this custom plugin, so
+      those are omitted -- this may mean NBrdf works for direct RIB
+      rendering but doesn't yet appear as a node in RenderMan for
+      Blender's Shader Editor. Cross that bridge once RIB rendering
+      is confirmed working.
+    -->
+</args>

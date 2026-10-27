@@ -1,0 +1,34 @@
+##RenderMan RIB
+version 3.03
+
+# Track C2 (performance-evaluation-protocol.md): whole-render time, NBRDF.
+# Identical camera/resolution/light/geometry to c2_pxrsurface.rib and
+# c2_pxrdiffuse.rib -- the ONLY thing that should differ between the three
+# is the Bxdf line. Use time_render.py for all three with the same --runs.
+#
+# Fixed thread count required for Track C (unlike A1/A2's -t:0 correctness
+# checks) -- pass the SAME -t:N to all three via time_render.py's command,
+# and record N in the write-up per protocol Sec 0.
+
+Display "c2_nbrdf.exr" "file" "rgba"
+Format 768 512 1
+PixelFilter "box" 1 1
+
+Projection "perspective" "fov" [40]
+Clipping 0.1 1000
+Translate 0 0 5
+
+Hider "raytrace" "int minsamples" [64] "int maxsamples" [64]
+
+WorldBegin
+
+    Light "PxrDomeLight" "c2light"
+        "float intensity" [1.0]
+        "float exposure" [0]
+        "color lightColor" [1.0 1.0 1.0]
+
+    Bxdf "NBrdf" "c2_material"
+        "string weightsPath" ["C:/NBrdfBuild/nbrdf_weights.bin"]
+    Sphere 1 -1 1 360
+
+WorldEnd

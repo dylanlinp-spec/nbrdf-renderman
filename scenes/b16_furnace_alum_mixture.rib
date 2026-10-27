@@ -1,0 +1,51 @@
+##RenderMan RIB
+version 3.03
+
+# -----------------------------------------------------------------
+# Track B (performance-evaluation-protocol.md), LOW-SPP variant.
+#
+# Why this file exists: b_distant_alum_*.rib and furnace_alum_*.rib were
+# all rendered at minsamples=maxsamples=512. At that sample count the
+# Monte Carlo noise for a smooth dome-light furnace scene is already
+# averaged down far below what shows up in a 5-decimal RMSE table --
+# which is WHY mixture/cosine-only/GGX-only came back bit-identical.
+# That isn't a plugin bug: samplingMode only changes which unbiased
+# sampler draws wi, not EvalReflectance or the converged mean, so at
+# high spp all three modes are SUPPOSED to agree. Track B is a
+# variance/efficiency comparison, and variance is exactly what 512 spp
+# was chosen (for A1/A2) to suppress.
+#
+# This file is furnace_alum.rib (mixture, samplingMode=0/default) with
+# minsamples=maxsamples dropped from 512 to 16 -- a sample count low
+# enough that the three samplers' different noise characteristics
+# should actually separate in furnace_check.py's RMSE. Same geometry/
+# light/material as furnace_alum.rib; only the Hider line changed.
+# Diff with:
+#   python furnace_check.py --exr b16_furnace_alum_mixture.exr --csv albedo_alum.csv
+# -----------------------------------------------------------------
+
+Display "b16_furnace_alum_mixture.exr" "file" "rgba"
+Format 512 512 1
+PixelFilter "box" 1 1
+
+Projection "orthographic"
+ScreenWindow -1.2 1.2 -1.2 1.2
+Clipping 0.1 1000
+Translate 0 0 5
+
+Hider "raytrace" "int minsamples" [16] "int maxsamples" [16]
+
+WorldBegin
+
+    Light "PxrDomeLight" "furnace"
+        "float intensity" [1.0]
+        "float exposure" [0]
+        "color lightColor" [1.0 1.0 1.0]
+
+    # samplingMode 0 = mixture (default/v2 behavior). Explicit here for clarity.
+    Bxdf "NBrdf" "furnace_material"
+        "string weightsPath" ["C:/NBrdfBuild/nbrdf_weights.bin"]
+        "int samplingMode" [0]
+    Sphere 1 -1 1 360
+
+WorldEnd

@@ -1,0 +1,12 @@
+Changelog (most recent first)
+=============================
+
+2026-10-26  Dylan Li
+  Files: entire repository
+  Created the reproduction repository from the original build folder
+  (C:\NBrdfBuild). The plugin, benchmark, scenes and analysis scripts were
+  copied unchanged, except for hard-coded personal paths in two scripts
+  (see doc/provenance.md). Added train_nbrdf.py (command-line version of the
+  v2 training notebook), bin_to_pt.py, compare_with_published.py, the
+  numbered driver scripts, and the documentation. Recorded the issues found
+  while assembling it in doc/known_issues.md.
