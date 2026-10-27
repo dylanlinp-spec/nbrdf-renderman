@@ -209,7 +209,18 @@ def self_test():
 
     d = tempfile.mkdtemp()
     exr_path = os.path.join(d, "furnace_self_test.exr")
-    cv2.imwrite(exr_path, img[..., ::-1])
+    try:
+        ok = cv2.imwrite(exr_path, img[..., ::-1])
+    except cv2.error:
+        ok = False
+    if not ok:
+        # This OpenCV build has no OpenEXR writer compiled in (the
+        # OPENCV_IO_ENABLE_OPENEXR env var only gates *decoding*, not
+        # writing). Fall back to a float TIFF saved with a ".exr" name --
+        # load_exr_rgb() above already knows how to read exactly that,
+        # because some real RenderMan installs write files this way too.
+        import tifffile
+        tifffile.imwrite(exr_path, img.astype(np.float32))
 
     csv_path = os.path.join(d, "albedo_self_test.csv")
     angles = np.array([0, 15, 30, 45, 60, 70, 80, 85], float)

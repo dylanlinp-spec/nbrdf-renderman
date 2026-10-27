@@ -25,7 +25,7 @@
 # The RenderMan installer normally sets RMANTREE for you. If it did, the
 # placeholder below is ignored. Find yours by opening a Command Prompt and
 # typing:  echo %RMANTREE%
-RMANTREE_DEFAULT="path_to_your_renderman_install"
+RMANTREE_DEFAULT="<path_to_renderman_install>"
 
 # --- 2. Where Visual Studio's vcvars64.bat lives ----------------------
 # Leave the placeholder alone if you installed Visual Studio Build Tools
@@ -79,3 +79,4 @@ LOG_DIR="${OUT_DIR}/logs"
 export RMANTREE VCVARS64_BAT WORK_DIR MERL_DIR PYTHON_BIN
 export TIMING_THREADS TIMING_RUNS BENCH_RUNS RENDER_THREADS
 export REPO_ROOT VENV_DIR WEIGHTS_DIR OUT_DIR LOG_DIR
+export OPENCV_IO_ENABLE_OPENEXR=1
