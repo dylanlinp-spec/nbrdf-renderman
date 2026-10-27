@@ -55,7 +55,7 @@ fi
 
 say "RenderMan"
 case "$RMANTREE" in
-    path_to_your_*|"") bad "RMANTREE is not set. Edit scripts/config.sh (see README, step 4)." ;;
+    path_to_your_*|"") bad "RMANTREE is not set. Edit scripts/config.sh (see README, step 7)." ;;
     *)
         if [ -f "${RMANTREE}/bin/prman.exe" ] || [ -f "${RMANTREE}/bin/prman" ]; then ok "prman found in ${RMANTREE}/bin"
         else bad "prman not found in ${RMANTREE}/bin. Is RMANTREE the RenderManProServer-27.x folder?"
