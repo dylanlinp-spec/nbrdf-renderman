@@ -3,7 +3,8 @@
 *.py   text eol=lf
 *.rib  text eol=lf
 *.md   text
-*.csv  text
+# Result tables are stored byte-for-byte as originally written (Windows line endings).
+*.csv  -text
 *.cff  text
 # Windows-only files keep Windows line endings.
 *.bat  text eol=crlf
