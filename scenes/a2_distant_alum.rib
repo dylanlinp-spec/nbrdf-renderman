@@ -2,7 +2,7 @@
 version 3.03
 
 # -----------------------------------------------------------------
-# Track A2 (performance-evaluation-protocol.md): analytic distant-light
+# Test 2 (performance-evaluation-protocol.md): analytic distant-light
 # match. Same geometry/light/material as render_gt_comparison.py's
 # analytic (zero-Monte-Carlo) reference, rendered for real through the
 # plugin's actual sampling path, so the two can be diffed pixel-for-pixel.
