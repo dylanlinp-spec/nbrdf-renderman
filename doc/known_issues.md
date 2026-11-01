@@ -17,7 +17,7 @@ Issues 1 and 2 change what the paper can claim. The rest are minor.
 | Output | Published value | Value for the rendered network |
 |---|---|---|
 | Table 1, alum-bronze max albedo | 0.1956 | **0.1886** |
-| Track A2 analytic reference (`render_gt_comparison.py`) | MAE R/G/B 0.049 / 0.036 / 0.025 | run `07_run_analysis.sh`; see `a2_alum_compare_rendered_network.csv` |
+| Test 2 analytic reference (`render_gt_comparison.py`) | MAE R/G/B 0.049 / 0.036 / 0.025 | run `07_run_analysis.sh`; see `a2_alum_compare_rendered_network.csv` |
 | `furnace_alum_spherelight_compare.csv`, reference columns | about 0.130 at θ = 5.6° | about 0.128 at θ = 5.6° |
 
 These outputs used the rendered network and are **not** affected: `furnace_alum_compare.csv`, Table 3 and 3b, all renders, and both timing results.
@@ -38,7 +38,7 @@ The benchmark `bench_eval.cpp` *was* built with `/O2`, as its header says.
 
 **What it affects.**
 
-- **Track C2 whole-render timings** (8.287 s, 5.20×, 3.89×) measure an *unoptimised* plugin. An optimised build will very likely be faster.
+- **Performance 3 whole-render timings** (8.287 s, 5.20×, 3.89×) measure an *unoptimised* plugin. An optimised build will very likely be faster.
 - **The C1 and C2 figures were measured on different builds.** C1 (1,292.96 ns per evaluation) used an optimised build, while the renderer in C2 used an unoptimised one.
 - Any statement that the plugin was built with `cl /O2` or as a "release build" is inaccurate for the plugin.
 
@@ -66,14 +66,14 @@ Under the dome light (`furnace_alum_compare.csv`) the maximum difference is **0.
 
 It was written by an earlier version of `sampler_variance.py`, before the α sweep was added. The current script always writes an `alpha` column. The values are identical: the reproduced file matches to 3.6 × 10⁻¹⁵.
 
-## 8. The rendered Track B ablation shows no difference, by design of the bug
+## 8. The rendered Performance 1 ablation shows no difference, by design of the bug
 
-In the renderer, the three sampling modes give bit-identical images under the dome light, in both bin means and per-pixel noise. This is not a bug in the switch: the code path was checked end to end. It means `GenerateSample`'s contribution does not reach the image under `PxrDomeLight`, which matches the dome-light propagation problem recorded in the methodology (§3.4). That is why Track B was answered analytically, in Table 3, instead.
+In the renderer, the three sampling modes give bit-identical images under the dome light, in both bin means and per-pixel noise. This is not a bug in the switch: the code path was checked end to end. It means `GenerateSample`'s contribution does not reach the image under `PxrDomeLight`, which matches the dome-light propagation problem recorded in the methodology (§3.4). That is why Performance 1 was answered analytically, in Table 3, instead.
 
 ## 9. Open items, never run
 
-- **Track A3 (convergence slope).** Never run, because the sampler is already known to be biased, not merely noisy.
-- **Track C3 (network-width sweep).** Skipped for time.
+- **Test 3 (convergence slope).** Never run, because the sampler is already known to be biased, not merely noisy.
+- **Performance 4 (network-width sweep).** Skipped for time.
 - **A fix for the dome-light propagation defect.** Still open.
 
 ## 10. `NBrdf.args` is unverified
