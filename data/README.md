@@ -9,7 +9,7 @@ This project trains on the **MERL BRDF database** (Matusik et al., 2003): reflec
 | Plugin build, renders, furnace tests, Table 3, timings | **No.** These use the trained weights in `results/weights/`. |
 | Table 1, alum-bronze (as published) | No |
 | Table 1, chrome (its ground-truth "GT" rows) | `chrome.binary` |
-| Track A2 analytic reference (`render_gt_comparison.py`) | `alum-bronze.binary` **and** `chrome.binary` |
+| Test 2 analytic reference (`render_gt_comparison.py`) | `alum-bronze.binary` **and** `chrome.binary` |
 | Retraining the networks (`03_train_networks.sh`) | `alum-bronze.binary` and `chrome.binary` |
 
 ## How to get it
