@@ -2,7 +2,7 @@
 version 3.03
 
 # -----------------------------------------------------------------
-# Track A1 diagnostic, SAMPLER-SIDE fork, technique 1 of 2: identical
+# Test 1 diagnostic, SAMPLER-SIDE fork, technique 1 of 2: identical
 # to furnace_alum.rib except the Bxdf is pointed at cosine-hemisphere
 # sampling ONLY, via the "samplingMode" parameter added in
 # NBrdf_v3_diag.cpp (requires rebuilding the plugin from that file --
