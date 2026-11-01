@@ -1,5 +1,6 @@
 # NBRDF for RenderMan
-*Note: Track A1 is Test 1, Track A2 is Test 2, Track B is Performance 1, Track C1 is Performance 2, Track C3 is Performance 3, this is in case you get confused with file names vs this README. 
+*Note: Track A1 is Test 1, Track A2 is Test 2, Track B is Performance 1, Track C1 is Performance 2, Track C3 is Performance 3, this is in case you get confused with file names vs this README.*
+
 A small neural network that learned how to replicate measured material light reflectance behaviors, running inside Pixar's RenderMan as a native material plugin.
 
 The network has 6 inputs, two hidden layers of 64 neurons and 3 outputs. It is trained on one material from the MERL measured-BRDF database. The file turns from a 35 MB table to a 19 KB file. A C++ Bxdf plugin then loads that file and evaluates the network millions of times per frame inside RenderMan 27.3.
