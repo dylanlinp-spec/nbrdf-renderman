@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # =====================================================================
-# 08_time_renders.sh -- Track C2: whole-render time of the same scene
+# 08_time_renders.sh -- Performance 3: whole-render time of the same scene
 # with three materials (NBRDF, PxrSurface, PxrDiffuse).
 #
 # Uses the published settings: prman -t:8, 1 discarded warm-up, then 6
