@@ -2,7 +2,7 @@
 version 3.03
 
 # -----------------------------------------------------------------
-# Track A1 diagnostic, LIGHT-SIDE fork: identical to furnace_alum.rib
+# Test 1 diagnostic, LIGHT-SIDE fork: identical to furnace_alum.rib
 # except PxrDomeLight -> PxrSphereLight, per the fallback note at the
 # bottom of furnace_alum.rib and the open question in
 # results-section-draft.md Sec 5.x.3.
