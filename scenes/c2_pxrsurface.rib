@@ -1,7 +1,7 @@
 ##RenderMan RIB
 version 3.03
 
-# Track C2: whole-render time, PxrSurface tuned to look roughly similar to
+# Performance 3: whole-render time, PxrSurface tuned to look roughly similar to
 # alum-bronze (metallic, fairly tight specular). NOT a quality match --
 # per the protocol, this bounds cost, it isn't apples-to-apples with NBRDF's
 # actual appearance. Identical camera/resolution/light/geometry to
