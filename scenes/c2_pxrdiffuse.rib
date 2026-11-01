@@ -1,7 +1,7 @@
 ##RenderMan RIB
 version 3.03
 
-# Track C2: whole-render time, PxrDiffuse as the cheap floor (simplest
+# Performance 3: whole-render time, PxrDiffuse as the cheap floor (simplest
 # possible Bxdf -- this is the baseline the NBRDF/PxrSurface ratios get
 # reported against). Identical camera/resolution/light/geometry to
 # c2_nbrdf.rib and c2_pxrsurface.rib.
