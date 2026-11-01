@@ -389,7 +389,7 @@ Both report the same probability density, so that RenderMan's multiple importanc
 
 ---
 
-## 7. Citing, license, and credits
+## 7. Citing, license, credits, and additional notes
 
 If you use this work, please cite it using [CITATION.cff](CITATION.cff); GitHub shows a **"Cite this repository"** button for it. For long-term preservation, archive a release on Zenodo, which issues a DOI and integrates with GitHub.
 
@@ -399,4 +399,4 @@ If you use this work, please cite it using [CITATION.cff](CITATION.cff); GitHub 
 
 The method follows Sztrajman et al., *Neural BRDF Representation and Importance Sampling*, Computer Graphics Forum (2021). The training data is from Matusik et al., *A Data-Driven Reflectance Model*, ACM Transactions on Graphics (2003). GGX sampling follows Walter et al., *Microfacet Models for Refraction through Rough Surfaces*, EGSR (2007).
 
-*Note: Track A1 is Test 1, Track A2 is Test 2, Track B is Performance 1, Track C1 is Performance 2, Track C3 is Performance 3, this is in case you get confused with file names vs this README. Additionally, generative AI was consulted to support the formatting, documentation, and the check the code of this respository.*
+*Note: Track A1 is Test 1, Track A2 is Test 2, Track B is Performance 1, Track C1 is Performance 2, Track C3 is Performance 3, this is in case you get confused with file names vs this README. Additionally, the research, neural network design, training, experiments, and RenderMan plugin implementation are my own work. Generative AI tools were consulted for assistance with documentation/repository format drafting and code debugging while preparing this repository*
