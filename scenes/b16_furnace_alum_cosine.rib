@@ -1,7 +1,7 @@
 ##RenderMan RIB
 version 3.03
 
-# Track B LOW-SPP variant, cosine-only. See b16_furnace_alum_mixture.rib's
+# Performance 1 LOW-SPP variant, cosine-only. See b16_furnace_alum_mixture.rib's
 # header for why 16 spp (not 512) is the right setting for this track.
 # Diff with:
 #   python furnace_check.py --exr b16_furnace_alum_cosine.exr --csv albedo_alum.csv
