@@ -2,7 +2,7 @@
 version 3.03
 
 # -----------------------------------------------------------------
-# Track A1 diagnostic, SAMPLER-SIDE fork, technique 2 of 2: identical
+# Test 1 diagnostic, SAMPLER-SIDE fork, technique 2 of 2: identical
 # to furnace_alum_cosine.rib except samplingMode=2 (GGX-around-mirror
 # ONLY). See furnace_alum_cosine.rib's header for the decision tree --
 # run both of these plus furnace_alum.rib (mixture) and compare all
