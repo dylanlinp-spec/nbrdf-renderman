@@ -2,7 +2,7 @@
 version 3.03
 
 # -----------------------------------------------------------------
-# White-furnace scene for alum-bronze (Track A1, performance-evaluation-protocol.md).
+# White-furnace scene for alum-bronze (Test 1, performance-evaluation-protocol.md).
 #
 # A single NBRDF sphere under a uniform-radiance (intensity 1.0) white dome,
 # shot with an ORTHOGRAPHIC camera. Under unit incoming radiance, the outgoing
