@@ -1,7 +1,7 @@
 ##RenderMan RIB
 version 3.03
 
-# Track C2 (performance-evaluation-protocol.md): whole-render time, NBRDF.
+# Performance 3 (performance-evaluation-protocol.md): whole-render time, NBRDF.
 # Identical camera/resolution/light/geometry to c2_pxrsurface.rib and
 # c2_pxrdiffuse.rib -- the ONLY thing that should differ between the three
 # is the Bxdf line. Use time_render.py for all three with the same --runs.
