@@ -1,7 +1,7 @@
 ##RenderMan RIB
 version 3.03
 
-# Track B (performance-evaluation-protocol.md): sampler-efficiency
+# Performance 1 (performance-evaluation-protocol.md): sampler-efficiency
 # ablation, cosine-only technique. Identical to a2_distant_alum.rib
 # (same light/geometry/material/spp) except "int samplingMode" [1] --
 # requires the plugin built from NBrdf_v3_diag.cpp. Diff against the
