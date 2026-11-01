@@ -1,12 +1,12 @@
 # NBRDF for RenderMan
+*Note: Track A1 is Test 1, Track A2 is Test 2, Track B is Performance 1, Track C1 is Performance 2, Track C3 is Performance 3, this is in case you get confused with file names vs this README
+A small neural network that learned how to replicate measured material light reflectance behaviors, running inside Pixar's RenderMan as a native material plugin.
 
-A small neural network that has learned how a real, measured material reflects light, running inside Pixar's RenderMan as a native material plugin.
+The network has 6 inputs, two hidden layers of 64 neurons and 3 outputs. It is trained on one material from the MERL measured-BRDF database. The file turns from a 35 MB table to a 19 KB file. A C++ Bxdf plugin then loads that file and evaluates the network millions of times per frame inside RenderMan 27.3.
 
-The network has 6 inputs, two hidden layers of 64 neurons and 3 outputs. It is trained on one material from the MERL measured-BRDF database: a 35 MB table becomes a 19 KB file. A C++ `RixBxdf` plugin then loads that file and evaluates the network millions of times per frame inside RenderMan 27.3.
+This repository holds everything needed to reproduce the project's results including the training code, the plugin, performance testing, trained weights, and the original result tables. This repository assumes one has **never built a RenderMan plugin or trained a network before**.
 
-This repository holds everything needed to reproduce the project's results: the training code, the plugin, the test scenes, the analysis scripts, the exact trained weights, and the original result tables. It is written for someone who has **never built a RenderMan plugin or trained a network before**. If you follow the steps in order, you should not need to guess at anything.
-
-> **Before you start, read [doc/known_issues.md](doc/known_issues.md).** It lists two things in the original results that a careful reader needs to know: the alum-bronze `.pt` and `.bin` files hold different networks, and the plugin was built without compiler optimisation. Neither is hidden by this repository. The scripts reproduce the results as published, and also produce the corrected versions.
+> **Before you start, read [doc/known_issues.md](doc/known_issues.md).** It lists two things in the original results that need to be noted: the alum-bronze `.pt` and `.bin` files hold different networks, and the plugin was built without compiler optimization. Neither is hidden by this repository. The scripts reproduce the results as published and the corrected versions.
 
 ---
 
@@ -27,22 +27,22 @@ This repository holds everything needed to reproduce the project's results: the 
 | Result | What it measures | Needs RenderMan? | Script | Published file |
 |---|---|---|---|---|
 | Table 1 | Energy conservation: directional albedo stays below 1 | No | `07_run_analysis.sh` | `results/tables/albedo_*.csv` |
-| Track A1 | White-furnace render vs. the no-renderer albedo curve | Yes | `06` then `07` | `results/tables/furnace_*_compare.csv` |
-| Track A2 | Distant-light render vs. a per-pixel analytic reference | Yes, plus MERL data | `06` then `07` | `results/tables/a2_alum_compare.csv` |
-| Track B (rendered) | Sampling-mode ablation through the renderer | Yes | `06` then `07` | logs only |
+| Test 1 | White-furnace render vs. the no-renderer albedo curve | Yes | `06` then `07` | `results/tables/furnace_*_compare.csv` |
+| Test 2 | Distant-light render vs. a per-pixel analytic reference | Yes, plus MERL data | `06` then `07` | `results/tables/a2_alum_compare.csv` |
+| Performance 1 | Sampling-mode ablation through the renderer | Yes | `06` then `07` | logs only |
 | Table 3 / 3b | Noise of each sampling strategy, computed exactly | No | `07_run_analysis.sh` | `results/tables/table3_*.csv` |
-| Track C1 | Time per network evaluation, without RenderMan | No (needs MSVC) | `05_run_benchmark.sh` | numbers in this README |
-| Track C2 | Whole-render time vs. two stock RenderMan materials | Yes | `08_time_renders.sh` | `results/tables/timing.csv` |
+| Performance 2 | Time per network evaluation, without RenderMan | No (needs MSVC) | `05_run_benchmark.sh` | numbers in this README |
+| Performance 3 | Whole-render time vs. two stock RenderMan materials | Yes | `08_time_renders.sh` | `results/tables/timing.csv` |
 | Figures | Analytic GT-vs-NBRDF spheres; two-sphere test render | Yes for the render | `07_run_analysis.sh` | `results/figures/` |
 
-The published numbers come from an Intel Core Ultra 9 288V (8 cores, 3.3 GHz) with 32 GB RAM, Windows 11, RenderMan 27.3 and MSVC:
+Specs: Intel Core Ultra 9 288V (8 cores, 3.3 GHz) with 32 GB RAM, Windows 11, RenderMan 27.3 and MSVC:
 
 - **Table 1.** Maximum directional albedo is 0.1956 for alum-bronze (but see [known issue 1](doc/known_issues.md#1-the-alum-bronze-pt-and-bin-are-different-networks): the network actually rendered gives 0.1886). Chrome gives 0.1857. Both are well below 1.
-- **Track A1.** The furnace test **fails**. Max |diff| is 0.295 for alum-bronze under the dome light and 0.292 under the sphere light, against a pass bar of 0.02. The sphere renders about 3× too bright near normal incidence and 3–6× too dark across the middle angles.
-- **Track A2.** MAE (R, G, B) is 0.049, 0.036 and 0.025.
+- **Test 1.** The furnace test **fails**. Max |diff| is 0.295 for alum-bronze under the dome light and 0.292 under the sphere light, against a pass bar of 0.02. The sphere renders about 3× too bright near normal incidence and 3–6× too dark across the middle angles.
+- **Performance 1.** MAE (R, G, B) is 0.049, 0.036 and 0.025.
 - **Table 3** (α = 0.05). Cosine-only sampling has 6.9× to 838× the variance of the 50/50 mixture; GGX-only has 18× to 38×.
-- **Track C1** (median of 5 runs). `EvalReflectance` takes 1,292.96 ns. The network alone takes 1,211.24 ns and the angle conversion 77.38 ns.
-- **Track C2** (prman -t:8, median of 6 runs). NBRDF takes 8.287 s, PxrSurface 2.129 s and PxrDiffuse 1.594 s, so NBRDF is 5.20× PxrDiffuse and 3.89× PxrSurface.
+- **Performance 2** (median of 5 runs). `EvalReflectance` takes 1,292.96 ns. The network alone takes 1,211.24 ns and the angle conversion 77.38 ns.
+- **Performance 3** (prman -t:8, median of 6 runs). NBRDF takes 8.287 s, PxrSurface 2.129 s and PxrDiffuse 1.594 s, so NBRDF is 5.20× the speed of PxrDiffuse and 3.89× PxrSurface.
 
 ---
 
@@ -75,15 +75,15 @@ Each step says how long it takes and what you should see. If something goes wron
 ### Step 1. Install Git for Windows
 
 1. Download the installer from https://git-scm.com/download/win and run it.
-2. Click **Next** on every screen; the defaults are fine. On the screen called **"Configuring the line ending conversions"**, the default ("Checkout Windows-style, commit Unix-style") is fine too, because this repository has a `.gitattributes` file that keeps the scripts working.
+2. Click **Next** on every screen; no need to change the default. On the screen called **"Configuring the line ending conversions"**, the default ("Checkout Windows-style, commit Unix-style") is fine too, because this repository has a `.gitattributes` file that keeps the scripts working.
 3. When it finishes, you will have a program called **Git Bash** in your Start menu.
 
-*About 5 minutes.*
+* Should take about 5 minutes.*
 
 ### Step 2. Install Python
 
 1. Download **Python 3.11** (Windows installer, 64-bit) from https://www.python.org/downloads/.
-2. On the first installer screen, **tick "Add python.exe to PATH"** at the bottom. This matters. Then click **Install Now**.
+2. On the first installer screen, **tick "Add python.exe to PATH"** at the bottom. Then click **Install Now**.
 3. Check that it worked. Open **Git Bash** and type:
    ```bash
    python --version
@@ -91,7 +91,7 @@ Each step says how long it takes and what you should see. If something goes wron
    You should see `Python 3.11.x`.
    - If you see `Python was not found; run without arguments to install from the Microsoft Store`, Windows is intercepting the command. Open **Settings → Apps → Advanced app settings → App execution aliases**, turn **off** both "python.exe" and "python3.exe", then close and reopen Git Bash.
 
-*About 5 minutes.*
+*Should take about 5 minutes.*
 
 ### Step 3. Install the C++ compiler
 
@@ -99,12 +99,12 @@ Each step says how long it takes and what you should see. If something goes wron
 2. In the installer, tick **"Desktop development with C++"** and click **Install**. Leave the optional items at their defaults.
 3. Restart your computer when it finishes.
 
-*About 15–30 minutes, mostly downloading.*
+*About 15–30 minutes of downloading.*
 
 ### Step 4. Install RenderMan
 
 1. Create a free account at https://renderman.pixar.com/ and download **RenderMan Pro Server 27.3** for Windows, with the non-commercial licence. If 27.3 is no longer offered, take the closest 27.x and note the version you used.
-2. Install it with the default options. The installer puts it somewhere like `C:\Program Files\Pixar\RenderManProServer-27.3`.
+2. Install it with the default options. The installer puts it somewhere similar to `C:\Program Files\Pixar\RenderManProServer-27.3`.
 3. Follow Pixar's instructions to activate the licence.
 4. Find out where it went. Open the Windows **Command Prompt** (not Git Bash) and type:
    ```
@@ -113,12 +113,12 @@ Each step says how long it takes and what you should see. If something goes wron
    - If this prints a folder path, RenderMan set itself up and you have nothing more to do here.
    - If it just prints `%RMANTREE%`, you will type the install folder into the settings file in Step 7.
 
-*About 15 minutes.*
+*Takes about 15 minutes.*
 
 ### Step 5. Download this repository
 
 1. Open **Git Bash**.
-2. Go to where you keep projects. For example, to use your Documents folder:
+2. Go to where you keep projects. For example, to use your Documents folder or equivalent:
    ```bash
    cd ~/Documents
    ```
@@ -137,11 +137,11 @@ Each step says how long it takes and what you should see. If something goes wron
 
 ### Step 6. (Optional) Download the MERL data
 
-You only need this to retrain the networks or to run the ground-truth comparisons (chrome Table 1 GT column and Track A2). Everything else uses the trained weights that ship with the repository.
+You only need this to retrain the networks or to run the ground-truth comparisons (chrome Table 1 GT column and Test 2). Everything else uses the trained weights that ship with the repository.
 
 Follow [data/README.md](data/README.md). You need `alum-bronze.binary` and `chrome.binary` in `data/merl/`.
 
-*About 5–10 minutes.*
+*Takes about 5–10 minutes.*
 
 ### Step 7. Tell the scripts where things are
 
@@ -156,10 +156,10 @@ The only line most people need to change:
 RMANTREE_DEFAULT="path_to_your_renderman_install"
 ```
 
-Change it to your RenderMan folder from Step 4, **with forward slashes**:
+Change it to your RenderMan folder or equivalent from Step 4, **with forward slashes**:
 
 ```bash
-RMANTREE_DEFAULT="C:/Program Files/Pixar/RenderManProServer-27.3"
+RMANTREE_DEFAULT= <your_path_here>
 ```
 
 If `echo %RMANTREE%` already printed a path in Step 4, you can leave the placeholder alone.
@@ -183,7 +183,7 @@ bash scripts/01_check_setup.sh
 
 This changes nothing on your computer. It checks each requirement and prints `[ OK ]`, `[WARN]` or `[FAIL]`. Fix every `[FAIL]` line and run it again until it ends with **"All required checks passed"**. `[WARN]` lines are fine. For example, missing MERL data is a warning, because you only need it for some steps.
 
-*Seconds.*
+*Should take a few seconds.*
 
 ### Step 9. Set up Python packages
 
@@ -205,7 +205,7 @@ This trains alum-bronze and chrome from the MERL data with the original code and
 
 The original training never fixed PyTorch's random seed, so **your networks will be similar but not bit-identical** to the shipped ones. All later steps use the shipped weights so that the published numbers can be reproduced exactly.
 
-*About 5–20 minutes per material on a laptop CPU.*
+*Should take about 5–20 minutes per material on a laptop CPU.*
 
 ### Step 11. Build the plugin
 
@@ -215,9 +215,9 @@ bash scripts/04_build_plugin.sh
 
 This compiles `src/plugin/NBrdf.cpp` into `NBrdf.dll`, in your work folder (`C:/NBrdfRepro` by default), using the exact compiler command in the source file's header. It should end with `Done. Built C:/NBrdfRepro/NBrdf.dll`.
 
-*Under a minute.*
+*Takes under a minute.*
 
-### Step 12. Run the speed benchmark (Track C1)
+### Step 12. Run the speed benchmark (Performance 1)
 
 ```bash
 bash scripts/05_run_benchmark.sh
@@ -225,7 +225,7 @@ bash scripts/05_run_benchmark.sh
 
 This builds `bench_eval.exe`, then times 10 million network evaluations, 5 times. It prints the median of each timing line. Close other programs first, because anything else running slows it down.
 
-*About 1–2 minutes.*
+*Should take about 1–2 minutes.*
 
 ### Step 13. Render the test scenes
 
@@ -233,13 +233,13 @@ This builds `bench_eval.exe`, then times 10 million network evaluations, 5 times
 bash scripts/06_render_scenes.sh
 ```
 
-This renders 12 scenes, each written to an `.exr` image in the work folder. Each render prints RenderMan's progress, and the plugin prints a line like:
+This renders 12 scenes, each written to an `.exr` image in the work folder. Each render prints RenderMan's progress, and the plugin prints a line along the lines of:
 
 ```
 NBrdf: loaded 'C:/NBrdfRepro/nbrdf_weights.bin' (4803 floats, checksum ...)
 ```
 
-If you see that line, the plugin found its weights. To render only some scenes, name them:
+If you see that line or something similar, the plugin found its weights. To render only some scenes, name them:
 
 ```bash
 bash scripts/06_render_scenes.sh furnace_alum a2_distant_alum
@@ -257,7 +257,7 @@ This produces every results table from the renders and the weights, and writes t
 
 *About 5–10 minutes.*
 
-### Step 15. Time the renders (Track C2)
+### Step 15. Time the renders (Performance 3)
 
 ```bash
 bash scripts/08_time_renders.sh
@@ -301,7 +301,7 @@ table3_variance.csv                      MATCH          3.55e-15
 The analysis also writes some files with no published counterpart. They are the **corrected** versions described in [doc/known_issues.md](doc/known_issues.md):
 
 - `albedo_alum_rendered_network.csv` holds Table 1 for the alum-bronze network that was actually rendered.
-- `a2_alum_compare_rendered_network.csv` holds Track A2 against a reference built from that same network.
+- `a2_alum_compare_rendered_network.csv` holds Test 2 against a reference built from that same network.
 
 Timing results depend on your hardware. Compare the **ratios** (NBRDF ÷ PxrDiffuse, and so on), not the seconds.
 
@@ -356,8 +356,8 @@ nbrdf-renderman/
 |---|---|---|
 | `nbrdf_weights.bin` | alum-bronze, plugin format (19,212 bytes) | every alum-bronze render; Table 3; benchmark |
 | `nbrdf_weights_chrome.bin` | chrome, plugin format | chrome renders |
-| `nbrdf_weights_v2.pt` | alum-bronze, PyTorch format. **Not the same network as the .bin**; see [known issue 1](doc/known_issues.md#1-the-alum-bronze-pt-and-bin-are-different-networks). | published Table 1 (alum-bronze); published Track A2 reference |
-| `nbrdf_weights_v2_chrome.pt` | chrome, PyTorch format. Identical network to its .bin. | Table 1 (chrome); Track A2 reference |
+| `nbrdf_weights_v2.pt` | alum-bronze, PyTorch format. **Not the same network as the .bin**; see [known issue 1](doc/known_issues.md#1-the-alum-bronze-pt-and-bin-are-different-networks). | published Table 1 (alum-bronze); published Test 2 reference |
+| `nbrdf_weights_v2_chrome.pt` | chrome, PyTorch format. Identical network to its .bin. | Table 1 (chrome); Test 2 reference |
 | `SHA256SUMS` | checksums; `01_check_setup.sh` verifies them | |
 
 ---
@@ -385,7 +385,7 @@ The plugin answers the two questions a path tracer asks of every material:
 - `GenerateSample` picks a new light direction itself. It uses a 50/50 mix of cosine-weighted and GGX (α = 0.05) sampling.
 - `EvaluateSample` is given a light direction by the renderer.
 
-Both report the same probability density, so that RenderMan's multiple importance sampling stays unbiased. A diagnostic parameter `samplingMode` (0 = mixture, the default; 1 = cosine only; 2 = GGX only) switches the sampler for the Track B ablation without rebuilding.
+Both report the same probability density, so that RenderMan's multiple importance sampling stays unbiased. A diagnostic parameter `samplingMode` (0 = mixture, the default; 1 = cosine only; 2 = GGX only) switches the sampler for the Performance 1 ablation without rebuilding.
 
 ---
 
